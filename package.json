@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "^5.19.0",
     "@types/jest": "^29.5.12",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
@@ -11,6 +12,11 @@
     "ts-jest": "^29.1.2"
   },
   "devDependencies": {
+    "prisma": "^5.19.0",
     "typescript": "^5.4.5"
+  },
+  "packageManager": "pnpm@8.15.5",
+  "engines": {
+    "node": "18.x"
   }
 }
