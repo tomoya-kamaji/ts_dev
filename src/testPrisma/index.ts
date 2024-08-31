@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { listPostsWithAuthor } from "@prisma/client/sql";
 
 const prisma = new PrismaClient();
 
@@ -24,6 +25,12 @@ export const UserRepository = {
   },
   findAll: async () => {
     const users = await prisma.user.findMany();
+    return users;
+  },
+  find: async (id: string) => {
+    const users = await prisma.$queryRawTyped(listPostsWithAuthor(id));
+    console.table(users);
+    console.table(users[0]);
     return users;
   },
 };
