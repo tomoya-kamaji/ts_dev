@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { listPostsWithAuthor } from "@prisma/client/sql";
+import { findUser } from "@prisma/client/sql";
 
 const prisma = new PrismaClient();
 
@@ -13,22 +13,9 @@ export const UserRepository = {
     });
     return newUser;
   },
-  findById: async (id: string) => {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-    return user;
-  },
-  findAll: async () => {
-    const users = await prisma.user.findMany();
-    return users;
-  },
   find: async (id: string) => {
-    const users = await prisma.$queryRawTyped(listPostsWithAuthor(id));
+    // prisma/sql/findUser.sqlからfindUser関数を生成している
+    const users = await prisma.$queryRawTyped(findUser(id));
     console.table(users);
     console.table(users[0]);
     return users;
