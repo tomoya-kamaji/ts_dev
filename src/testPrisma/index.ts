@@ -16,6 +16,10 @@ export const UserRepository = {
     const user = await prisma.user.findUnique({
       where: { id },
     });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
     return user;
   },
   findAll: async () => {
