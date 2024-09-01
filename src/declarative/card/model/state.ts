@@ -5,13 +5,20 @@ export type Product = {
   price: number;
 };
 
-// カートの型
+/**
+ * カートの状態
+ */
 export type Cart = {
   items: Product[];
-  total: number;
 };
 
-// 購入処理の型
+export const total = (cart: Cart): number => {
+  return cart.items.reduce((acc, product) => acc + product.price, 0);
+};
+
+/**
+ * 購入情報
+ */
 export type Purchase = {
   userId: string;
   cart: Cart;
