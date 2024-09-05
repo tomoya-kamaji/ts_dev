@@ -17,7 +17,7 @@ export const UserRepository = {
     // prisma/sql/findUser.sqlからfindUser関数を生成している
     const users = await prisma.$queryRawTyped(findUser(id));
     console.table(users);
-    console.table(users[0]);
+    console.table(users[0].id);
     return users;
   },
 };
