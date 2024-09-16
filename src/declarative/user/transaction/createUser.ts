@@ -4,13 +4,13 @@ import { sendSuccessMessage } from "../service/sendSuccessMessage";
 import { validateUserProfile } from "../service/validateUserProfile";
 
 // ユーザのプロフィール入力
-const iput: Input = {
+const input: Input = {
   kind: "Input",
   name: "John Doe",
   email: "john@example.com",
 };
 
-validateUserProfile(iput)
+validateUserProfile(input)
   .andThen(createUser)
   .andThen(sendSuccessMessage)
   .match(
