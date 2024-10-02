@@ -2,13 +2,6 @@
 
 const BASE_URL = "http://localhost:8085";
 const API_KEY = "partner_4PatLErZsd73urlULswUmR2KB7QnIBXJm";
-// {
-//     id: 3,
-//     patientCode: 'memo',
-//     templateTitle: '手術同意書2',
-//     createdAt: 'Wed Oct 02 2024 11:14:16 GMT+0900 (日本標準時)',
-//     consentedAt: 'Wed Oct 02 2024 11:14:54 GMT+0900 (日本標準時)'
-//   },
 interface Consent {
   id: number;
   patientCode: string;
@@ -29,7 +22,7 @@ interface ConsentDetail {
 /**
  * 同意書リスト
  */
-const fetchConsentList = async () => {
+const fetchConsentList = async (): Promise<Consent[]> => {
   try {
     console.log(`${BASE_URL}/partner/v1/consents`);
     const response = await fetch(`${BASE_URL}/partner/v1/consents`, {
@@ -41,9 +34,10 @@ const fetchConsentList = async () => {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    return data.data;
+    return data.data.consents;
   } catch (error) {
     console.error("Error fetching data:", error);
+    throw error;
   }
 };
 
@@ -53,21 +47,26 @@ const fetchConsentList = async () => {
 interface DetailProps {
   id: string;
 }
-const fetchConsentDetail = async ({ id }: DetailProps) => {
+const fetchConsentDetail = async ({
+  id,
+}: DetailProps): Promise<ConsentDetail> => {
   try {
     const response = await fetch(`${BASE_URL}/partner/v1/consents/${id}`, {
       headers: {
         "X-API-KEY": API_KEY,
       },
     });
+    // ステータスコード
+    console.log(response.status);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
 
-    return data.data;
+    return data.data.consent;
   } catch (error) {
     console.error("Error fetching data:", error);
+    throw error;
   }
 };
 
@@ -79,14 +78,23 @@ interface ConnectProps {
 }
 
 const connectConsent = async ({ data }: ConnectProps) => {
-  await fetch(`${BASE_URL}/partner/v1/consents/connect`, {
-    method: "POST",
-    headers: {
-      "X-API-KEY": API_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/partner/v1/consents/connect`, {
+      method: "POST",
+      headers: {
+        "X-API-KEY": API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return response.status;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
 };
 
 export { connectConsent, fetchConsentDetail, fetchConsentList };
