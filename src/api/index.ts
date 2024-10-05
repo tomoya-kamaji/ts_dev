@@ -1,6 +1,7 @@
 // API fetchで叩く
 
-const BASE_URL = "http://localhost:8085";
+// const BASE_URL = "http://localhost:8085";
+const BASE_URL = "https://dev-partner-api.contrea.net";
 const API_KEY = "partner_4PatLErZsd73urlULswUmR2KB7QnIBXJm";
 interface Consent {
   id: number;
@@ -18,6 +19,24 @@ interface ConsentDetail {
   createdAt: string;
   consentedAt: string;
 }
+// ヘルスチェック
+const healthCheck = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${BASE_URL}/partner/v1/healthCheck`, {
+      headers: {
+        "X-API-KEY": API_KEY,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 
 /**
  * 同意書リスト
@@ -97,4 +116,4 @@ const connectConsent = async ({ data }: ConnectProps) => {
   }
 };
 
-export { connectConsent, fetchConsentDetail, fetchConsentList };
+export { connectConsent, fetchConsentDetail, fetchConsentList, healthCheck };

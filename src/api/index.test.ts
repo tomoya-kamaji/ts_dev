@@ -1,6 +1,18 @@
-import { connectConsent, fetchConsentDetail, fetchConsentList } from ".";
 import fs from "fs";
 import path from "path";
+import {
+  connectConsent,
+  fetchConsentDetail,
+  fetchConsentList,
+  healthCheck,
+} from ".";
+
+describe("healthCheck", () => {
+  it("取得する", async () => {
+    const data = await healthCheck();
+    console.log(data);
+  });
+});
 
 describe("sayHello", () => {
   it("取得する", async () => {
