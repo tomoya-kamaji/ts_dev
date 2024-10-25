@@ -2,7 +2,19 @@ import * as kuromoji from "kuromoji";
 
 const tokenizer = kuromoji.builder({ dicPath: "node_modules/kuromoji/dict" });
 
-export const addFurigana = async (text: string): Promise<string> => {
+type TextWithFurigana = {
+  original: string;
+  furigana: string;
+};
+
+type TextWithFuriganaList = TextWithFurigana[];
+
+/**
+ * inputからふりがなに変換
+ */
+export const addFurigana = async (
+  text: string
+): Promise<TextWithFuriganaList> => {
   const tokenizerInstance = await new Promise<
     kuromoji.Tokenizer<kuromoji.IpadicFeatures>
   >((resolve, reject) => {
@@ -15,15 +27,12 @@ export const addFurigana = async (text: string): Promise<string> => {
   });
 
   const tokens = tokenizerInstance.tokenize(text);
-  const furiganaText = tokens
-    .map((token) => {
-      // 表層形と読みが異なる場合にふりがなを付ける
-      if (token.surface_form !== token.reading) {
-        return `${token.surface_form}(${token.reading})`;
-      }
-      return token.surface_form;
-    })
-    .join("");
-
-  return furiganaText;
+  const textWithFuriganaList = tokens.map((token) => {
+    // 漢字のときはふりがなを付ける
+    return {
+      original: token.surface_form,
+      furigana: token.reading || "",
+    };
+  });
+  return textWithFuriganaList;
 };
