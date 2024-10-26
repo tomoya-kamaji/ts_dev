@@ -1,6 +1,8 @@
 import * as kuromoji from "kuromoji";
 
-const tokenizer = kuromoji.builder({ dicPath: "node_modules/kuromoji/dict" });
+const tokenizer = kuromoji.builder({
+  dicPath: "node_modules/kuromoji/dict",
+});
 
 type TextWithFurigana = {
   original: string;
