@@ -28,11 +28,19 @@ export const addFurigana = async (
 
   const tokens = tokenizerInstance.tokenize(text);
   const textWithFuriganaList = tokens.map((token) => {
-    // 漢字のときはふりがなを付ける
+    // TODO: 漢字のときはふりがなを付ける
+    const original = token.surface_form;
+    const reading = token.reading || "";
+    const furigana = isKanji(original) ? reading : "";
     return {
-      original: token.surface_form,
-      furigana: token.reading || "",
+      original,
+      furigana,
     };
   });
   return textWithFuriganaList;
+};
+
+// 漢字のみで構成されているかを判定する関数
+const isKanji = (str: string): boolean => {
+  return /^[\u4E00-\u9FFF]+$/.test(str);
 };
