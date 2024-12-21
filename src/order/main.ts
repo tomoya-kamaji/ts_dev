@@ -17,6 +17,7 @@ export const execute = async (
   order: UnverifiedOrder
 ): Promise<CalculatedOrder> => {
   // (2) ロジックを合成 (verify → calculate → send)
+  //　注文情報を検証して、注文情報を計算して、顧客に通知する
   const finalResult = await verifyOrderResult(order, isAddressExist)
     .andThen((verifiedOrder) => calculateOrderResult(verifiedOrder))
     .andThen((calculatedOrder) => sendOrderToCustomer(calculatedOrder));

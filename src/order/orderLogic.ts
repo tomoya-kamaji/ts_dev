@@ -1,4 +1,4 @@
-import { err, ok, ResultAsync } from "neverthrow";
+import { err, ok, Result, ResultAsync } from "neverthrow";
 import { CalculatedOrder, UnverifiedOrder, VerifiedOrder } from "./domain";
 import { OrderError, OrderErrorType } from "./result";
 
@@ -12,7 +12,6 @@ export const verifyOrderResult = (
   order: UnverifiedOrder,
   isAddressExist: (addr: string) => Promise<boolean>
 ): ResultAsync<VerifiedOrder, OrderError> => {
-    
   return ResultAsync.fromPromise(
     isAddressExist(order.shippingAddress),
     (e): OrderError => ({
@@ -39,26 +38,22 @@ export const verifyOrderResult = (
  */
 export const calculateOrderResult = (
   order: VerifiedOrder
-): ResultAsync<CalculatedOrder, OrderError> => {
-  const promise = (async () => {
-    if (order.orderLines.length === 0) {
-      throw {
-        type: OrderErrorType.NO_ORDER_LINES,
-        message: "注文明細がありません",
-      };
-    }
-    const totalPrice = order.orderLines.reduce(
-      (sum, line) => sum + line.price,
-      0
-    );
-    return {
-      ...order,
-      kind: "Calculated" as const,
-      totalPrice,
-    } as CalculatedOrder;
-  })();
-
-  return ResultAsync.fromSafePromise(promise);
+): Result<CalculatedOrder, OrderError> => {
+  if (order.orderLines.length === 0) {
+    return err<CalculatedOrder, OrderError>({
+      type: OrderErrorType.NO_ORDER_LINES,
+      message: "注文明細がありません",
+    });
+  }
+  const totalPrice = order.orderLines.reduce(
+    (sum, line) => sum + line.price,
+    0
+  );
+  return ok<CalculatedOrder, OrderError>({
+    ...order,
+    kind: "Calculated",
+    totalPrice,
+  });
 };
 
 /**
@@ -70,6 +65,7 @@ export const sendOrderToCustomer = (
 ): ResultAsync<CalculatedOrder, OrderError> => {
   const promise = (async () => {
     // 非同期の顧客通知処理があると仮定 (ここでは代わりに console.log)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     console.log(
       `Send order#${order.id} to ${order.shippingAddress} ` +
         `with totalPrice=${order.totalPrice}`
