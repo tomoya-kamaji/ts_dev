@@ -75,3 +75,16 @@ export const sendOrderToCustomer = (
 
   return ResultAsync.fromSafePromise(promise);
 };
+
+export const saveOrder = (
+  order: CalculatedOrder,
+  saveOrder: (order: CalculatedOrder) => Promise<CalculatedOrder>
+): ResultAsync<CalculatedOrder, OrderError> => {
+  return ResultAsync.fromPromise(
+    saveOrder(order),
+    (e): OrderError => ({
+      type: OrderErrorType.SAVE_ORDER_FAILED,
+      message: `注文保存で例外が発生: ${String(e)}`,
+    })
+  );
+};

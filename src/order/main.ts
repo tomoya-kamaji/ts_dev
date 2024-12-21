@@ -3,6 +3,7 @@
 import { CalculatedOrder, UnverifiedOrder } from "./domain";
 import {
   calculateOrderResult,
+  saveOrder,
   sendOrderToCustomer,
   verifyOrderResult,
 } from "./orderLogic";
@@ -20,7 +21,9 @@ export const execute = async (
   //　注文情報を検証して、注文情報を計算して、顧客に通知する
   const finalResult = await verifyOrderResult(order, isAddressExist)
     .andThen((verifiedOrder) => calculateOrderResult(verifiedOrder))
-    .andThen((calculatedOrder) => sendOrderToCustomer(calculatedOrder));
+    .andThen((calculatedOrder) => sendOrderToCustomer(calculatedOrder))
+    // DB保存
+    .andThen((calculatedOrder) => saveOrder(calculatedOrder, saveOrderToDB));
 
   // (3) 結果判定
   if (finalResult.isOk()) {
@@ -35,4 +38,11 @@ export const execute = async (
 const isAddressExist = async (addr: string): Promise<boolean> => {
   console.log("住所存在チェック:", addr);
   return true;
+};
+
+const saveOrderToDB = async (
+  order: CalculatedOrder
+): Promise<CalculatedOrder> => {
+  console.log("注文保存:", order);
+  return order;
 };
