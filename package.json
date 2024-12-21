@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "ts-node src/server.ts"
+  },
   "dependencies": {
     "@prisma/client": "^5.19.0",
     "@types/cors": "^2.8.17",
