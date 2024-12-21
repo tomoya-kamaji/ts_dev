@@ -1,72 +1,81 @@
-// orderLogic.ts
-
+import { err, ok, ResultAsync } from "neverthrow";
 import { CalculatedOrder, UnverifiedOrder, VerifiedOrder } from "./domain";
-import { OrderError, OrderErrorType, Result } from "./result";
+import { OrderError, OrderErrorType } from "./result";
 
 /**
- * 検証処理 (Unverified → Verified)
- * 成功: { ok: true, value: VerifiedOrder }
- * 失敗: { ok: false, error: OrderError }
+ * (例) 非同期の住所チェックを行う想定:
+ *   isAddressExist: (addr: string) => Promise<boolean>
+ *
+ * UnverifiedOrder → VerifiedOrder
  */
 export const verifyOrderResult = (
   order: UnverifiedOrder,
-  isAddressExist: (addr: string) => boolean
-): Result<VerifiedOrder, OrderError> => {
-  if (!isAddressExist(order.shippingAddress)) {
-    return {
-      ok: false,
-      error: {
+  isAddressExist: (addr: string) => Promise<boolean>
+): ResultAsync<VerifiedOrder, OrderError> => {
+    
+  return ResultAsync.fromPromise(
+    isAddressExist(order.shippingAddress),
+    (e): OrderError => ({
+      type: OrderErrorType.ADDRESS_NOT_EXIST,
+      message: `住所存在チェックで例外が発生: ${String(e)}`,
+    })
+  ).andThen((exists) => {
+    if (!exists) {
+      return err<VerifiedOrder, OrderError>({
         type: OrderErrorType.ADDRESS_NOT_EXIST,
         message: "配送先住所が存在しません",
-      },
-    };
-  }
-  return {
-    ok: true,
-    value: {
+      });
+    }
+    return ok<VerifiedOrder, OrderError>({
       ...order,
       kind: "Verified",
-    },
-  };
+    });
+  });
 };
 
 /**
- * 金額計算処理 (Verified → Calculated)
- * 成功: { ok: true, value: CalculatedOrder }
- * 失敗: { ok: false, error: OrderError }
+ * VerifiedOrder → CalculatedOrder
+ * 今回は同期的なロジックだが、あえて ResultAsync.fromSafePromise を使ってみる例
  */
 export const calculateOrderResult = (
   order: VerifiedOrder
-): Result<CalculatedOrder, OrderError> => {
-  if (order.orderLines.length === 0) {
-    return {
-      ok: false,
-      error: {
+): ResultAsync<CalculatedOrder, OrderError> => {
+  const promise = (async () => {
+    if (order.orderLines.length === 0) {
+      throw {
         type: OrderErrorType.NO_ORDER_LINES,
         message: "注文明細がありません",
-      },
-    };
-  }
-  const totalPrice = order.orderLines.reduce(
-    (sum, line) => sum + line.price,
-    0
-  );
-
-  return {
-    ok: true,
-    value: {
+      };
+    }
+    const totalPrice = order.orderLines.reduce(
+      (sum, line) => sum + line.price,
+      0
+    );
+    return {
       ...order,
-      kind: "Calculated",
+      kind: "Calculated" as const,
       totalPrice,
-    },
-  };
+    } as CalculatedOrder;
+  })();
+
+  return ResultAsync.fromSafePromise(promise);
 };
 
 /**
- * 顧客通知処理 (Calculated のみ受け取る想定)
- * 状態が Calculated であることを型で保証
+ * CalculatedOrder → 顧客通知
+ * ここでも非同期を想定して ResultAsync を返す例
  */
-export const sendOrderToCustomer = (order: CalculatedOrder): void => {
-  // 顧客通知の実装は仮
-  console.log(`Send order#${order.id} with totalPrice=${order.totalPrice}`);
+export const sendOrderToCustomer = (
+  order: CalculatedOrder
+): ResultAsync<CalculatedOrder, OrderError> => {
+  const promise = (async () => {
+    // 非同期の顧客通知処理があると仮定 (ここでは代わりに console.log)
+    console.log(
+      `Send order#${order.id} to ${order.shippingAddress} ` +
+        `with totalPrice=${order.totalPrice}`
+    );
+    return order;
+  })();
+
+  return ResultAsync.fromSafePromise(promise);
 };
