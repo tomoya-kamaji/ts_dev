@@ -8,7 +8,10 @@ import {
 } from "./orderLogic";
 
 /**
- * サンプル実行
+ * 以下の記事を参考
+ * TypeScriptで書いてみた
+ * Kotlinによる関数型アプローチを活用した型安全な注文確認フロー
+ * https://zenn.dev/loglass/articles/5e08a7784981cc
  */
 export const execute = async (
   order: UnverifiedOrder
