@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node src/server.ts"
+    "mcp:dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/mcp/server.ts",
+    "mcp:start": "ts-node src/mcp/server.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
@@ -19,6 +20,7 @@
     "mecab-lite": "^0.0.8",
     "neverthrow": "^7.1.0",
     "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.9",
     "ts-jest": "^29.1.2",
     "ulid": "^2.3.0"
   },

@@ -1,0 +1,242 @@
+openapi: 3.0.0
+info:
+  title: ユーザー管理API
+  description: ユーザーの作成、取得、更新、削除ができるシンプルなAPI
+  version: 1.0.0
+  contact:
+    name: API サポートチーム
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: 開発サーバー
+
+paths:
+  /users:
+    get:
+      summary: ユーザー一覧の取得
+      description: 登録されているすべてのユーザーの一覧を取得します
+      operationId: getUsers
+      tags:
+        - users
+      parameters:
+        - name: limit
+          in: query
+          description: 取得するユーザーの最大数
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: ユーザー一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      summary: 新規ユーザーの作成
+      description: 新しいユーザーを作成します
+      operationId: createUser
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: ユーザーの作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /users/{userId}:
+    get:
+      summary: 特定ユーザーの取得
+      description: IDを指定してユーザー情報を取得します
+      operationId: getUserById
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          description: 取得するユーザーのID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ユーザーの取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: ユーザーが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: ユーザー情報の更新
+      description: 指定したIDのユーザー情報を更新します
+      operationId: updateUser
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          description: 更新するユーザーのID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: ユーザーの更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: ユーザーが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: ユーザーの削除
+      description: 指定したIDのユーザーを削除します
+      operationId: deleteUser
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          description: 削除するユーザーのID
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ユーザーの削除に成功
+        '404':
+          description: ユーザーが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ユーザーの一意識別子
+        username:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+        createdAt:
+          type: string
+          format: date-time
+          description: ユーザー作成日時
+        updatedAt:
+          type: string
+          format: date-time
+          description: ユーザー更新日時
+      required:
+        - id
+        - username
+        - email
+        - createdAt
+        - updatedAt
+    
+    UserInput:
+      type: object
+      properties:
+        username:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+      required:
+        - username
+        - email
+    
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+      required:
+        - code
+        - message
